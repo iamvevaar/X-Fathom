@@ -142,6 +142,13 @@ ui-playhead {
 }
 
 
+.speed-button span {
+    font-size: 14px;
+    font-family: system-ui, -apple-system, sans-serif;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 /* Speed menu styling */
 /* Speed control container styling */
 .speed-container {
