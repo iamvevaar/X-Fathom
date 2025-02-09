@@ -1,0 +1,15 @@
+{
+    "manifest_version": 3,
+    "name": "Fathom Progress Bar Cleaner",
+    "version": "1.0",
+    "description": "Removes unwanted elements from the Fathom video recorder player, leaving only the progress bar.",
+    "content_scripts": [
+    {
+      "matches": ["*://*.fathom.video/*"],
+      "css": ["styles.css"],
+      "js": ["content.js"]
+    }
+  ],
+    "permissions": ["activeTab"]
+  }
+  

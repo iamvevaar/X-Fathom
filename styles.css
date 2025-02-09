@@ -1,0 +1,12 @@
+/* Hide the specified elements while keeping the progress bar visible */
+.z-menu.cursor-pointer.inline-flex.css-manbx0.hydrated,
+button.flex.items-end:not(.css-19urstm),
+button.flex.items-end.cursor-pointer.css-19urstm,
+.w-4.h-3.text-sm.border.rounded-sm.p-1px.border-glyph-light {
+  display: none !important;
+}
+
+/* Ensure the progress bar container remains visible */
+ui-playhead {
+  display: flex !important;
+}
