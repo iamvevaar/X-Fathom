@@ -25,6 +25,21 @@ function createControlsStructure() {
   // Create left controls group
   const leftControls = createControlElement("div", "controls-left");
 
+   // Add loader container (will be positioned in the center of video)
+   const loaderContainer = createControlElement("div", "video-loader-container");
+   loaderContainer.innerHTML = `
+       <div class="spinner-container">
+           <div class="spinner-ring"></div>
+       </div>
+   `;
+   
+   // Add loader to the correct location - the menu element inside video-player
+   const menu = document.querySelector('video-player menu');
+   if (menu) {
+       // Insert loader as the first child of menu, before all other controls
+       menu.insertBefore(loaderContainer, menu.firstChild);
+   }
+
   // Create backward 10s button
   const backwardButton = createControlElement(
     "button",
@@ -316,6 +331,36 @@ function setupSpeedControl(videoElement, speedContainer) {
   videoElement.addEventListener("ratechange", () => {
     updateSpeedUI(videoElement.playbackRate);
     console.log("Playback rate changed:", videoElement.playbackRate);
+  });
+}
+
+function setupVideoLoader(videoElement) {
+  const loaderContainer = document.querySelector('.video-loader-container');
+  if (!loaderContainer) return;
+
+  // Show loader when video is waiting/buffering
+  videoElement.addEventListener('waiting', () => {
+      loaderContainer.classList.add('loading');
+  });
+
+  // Hide loader when video can play
+  videoElement.addEventListener('canplay', () => {
+      loaderContainer.classList.remove('loading');
+  });
+
+  // Show loader when seeking
+  videoElement.addEventListener('seeking', () => {
+      loaderContainer.classList.add('loading');
+  });
+
+  // Hide loader when done seeking
+  videoElement.addEventListener('seeked', () => {
+      loaderContainer.classList.remove('loading');
+  });
+
+  // Also hide loader when playing (in case other events missed)
+  videoElement.addEventListener('playing', () => {
+      loaderContainer.classList.remove('loading');
   });
 }
 
@@ -771,6 +816,8 @@ function initializePlayer() {
 
   // Add controls to player
   playerSection.appendChild(controlsWrapper);
+
+  setupVideoLoader(videoElement);
 
   // Set up event listeners
   const playButton = controlsWrapper.querySelector(".play-pause");
