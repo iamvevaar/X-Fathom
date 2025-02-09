@@ -1,4 +1,4 @@
-/* Hide the specified elements while keeping the progress bar visible */
+/* Hide original controls except progress bar */
 .z-menu.cursor-pointer.inline-flex.css-manbx0.hydrated,
 button.flex.items-end:not(.css-19urstm),
 button.flex.items-end.cursor-pointer.css-19urstm,
@@ -6,7 +6,76 @@ button.flex.items-end.cursor-pointer.css-19urstm,
   display: none !important;
 }
 
-/* Ensure the progress bar container remains visible */
+/* Main container styles */
+.video-controls-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 8px 0;
+  z-index: 1000;
+}
+
+/* Progress bar container */
+.progress-bar-container {
+  width: 100%;
+  padding: 0 16px;
+  margin-bottom: 12px;
+}
+
+/* Ensure the progress bar is visible */
 ui-playhead {
   display: flex !important;
+  width: 100% !important;
+}
+
+/* Custom controls styling */
+.fathom-custom-controls {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  width: 100%;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.control-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.time-display {
+  color: white;
+  font-size: 14px;
+  font-family: system-ui, -apple-system, sans-serif;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
