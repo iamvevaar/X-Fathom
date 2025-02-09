@@ -79,3 +79,44 @@ ui-playhead {
   opacity: 1 !important;
   visibility: visible !important;
 }
+
+
+/* Speed menu styling */
+.speed-menu {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: rgba(28, 28, 28, 0.9);
+    border-radius: 4px;
+    padding: 8px 0;
+    display: none;
+    min-width: 120px;
+}
+
+.speed-menu.visible {
+    display: block;
+}
+
+.speed-option {
+    padding: 8px 16px;
+    color: white;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+}
+
+.speed-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.speed-option.active {
+    color: #3ea6ff;
+}
+
+/* Position the speed button container relatively for the menu */
+.speed-container {
+    position: relative;
+}
