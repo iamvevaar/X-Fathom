@@ -21,7 +21,6 @@ button.flex.items-end.cursor-pointer.css-19urstm,
 .progress-bar-container {
   width: 100%;
   padding: 0 16px;
-  margin-bottom: 12px;
 }
 
 /* Ensure the progress bar is visible */
@@ -35,7 +34,7 @@ ui-playhead {
   display: flex !important;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 8px;
   width: 100%;
   opacity: 1 !important;
   visibility: visible !important;
@@ -119,4 +118,65 @@ ui-playhead {
 /* Position the speed button container relatively for the menu */
 .speed-container {
     position: relative;
+}
+
+
+/* Volume control container and hover behavior */
+.volume-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.volume-slider-container {
+    width: 0;
+    height: 100%;
+    overflow: hidden;
+    transition: width 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.volume-container:hover .volume-slider-container {
+    width: 100px;
+}
+
+/* Volume slider styling */
+.volume-slider {
+    -webkit-appearance: none;
+    width: 80px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+    margin: 0 10px;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s ease;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
 }

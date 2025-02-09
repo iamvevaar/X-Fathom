@@ -31,11 +31,38 @@ function createControlsStructure() {
             <path d="M8 5v14l11-7z"/>
         </svg>
     `;
+
+    // Create volume control container
+    const volumeContainer = createControlElement('div', 'volume-container');
+    
+    // Create volume button
+    const volumeButton = createControlElement('button', 'control-button volume-button');
+    volumeButton.innerHTML = `
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 5v14l-7-7H1V8h4l7-7v14zM16 7v10c1.2-1.2 2-3 2-5s-.8-3.8-2-5z"/>
+        </svg>
+    `;
+
+    
+    // Create volume slider container
+    const volumeSliderContainer = createControlElement('div', 'volume-slider-container');
+    
+    // Create volume slider
+    const volumeSlider = createControlElement('input', 'volume-slider');
+    volumeSlider.type = 'range';
+    volumeSlider.min = '0';
+    volumeSlider.max = '100';
+    volumeSlider.value = '100';
+    
+    volumeSliderContainer.appendChild(volumeSlider);
+    volumeContainer.appendChild(volumeButton);
+    volumeContainer.appendChild(volumeSliderContainer);
     
     // Create time display
     const timeDisplay = createControlElement('span', 'time-display', '0:00 / 0:00');
     
     leftControls.appendChild(playButton);
+    leftControls.appendChild(volumeContainer);
     leftControls.appendChild(timeDisplay);
     
     // Create right controls group
@@ -165,6 +192,78 @@ function setupFullscreenControl(videoElement, fullscreenButton) {
     });
 }
 
+
+// Add this new function to handle volume controls
+function setupVolumeControl(videoElement, volumeContainer) {
+    const volumeButton = volumeContainer.querySelector('.volume-button');
+    const volumeSlider = volumeContainer.querySelector('.volume-slider');
+    let previousVolume = 1;
+
+    // Function to update volume icon based on current volume
+    function updateVolumeIcon(volume) {
+        const isMuted = volume === 0;
+        const isLow = volume > 0 && volume <= 0.5;
+        
+        volumeButton.innerHTML = isMuted ? `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 5v14l-7-7H1V8h4l7-7v14zM16 7v10l4-4-4-6z"/>
+                <line x1="16" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        ` : isLow ? `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 5v14l-7-7H1V8h4l7-7v14zM16 7v10c1.2-1.2 2-3 2-5s-.8-3.8-2-5z"/>
+            </svg>
+        ` : `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 5v14l-7-7H1V8h4l7-7v14zM16 7v10c1.2-1.2 2-3 2-5s-.8-3.8-2-5z"/>
+                <path d="M19 7v10c1.8-1.8 3-4.2 3-7s-1.2-5.2-3-7z"/>
+            </svg>
+        `;
+    }
+
+    // Initialize volume slider value
+    volumeSlider.value = videoElement.volume * 100;
+    updateVolumeIcon(videoElement.volume);
+
+    // Handle volume slider input
+    volumeSlider.addEventListener('input', (e) => {
+        const volume = parseFloat(e.target.value) / 100;
+        videoElement.volume = volume;
+        videoElement.muted = volume === 0;
+        updateVolumeIcon(volume);
+    });
+
+    // Handle volume button click (mute/unmute)
+    volumeButton.addEventListener('click', () => {
+        if (videoElement.volume === 0 || videoElement.muted) {
+            videoElement.muted = false;
+            videoElement.volume = previousVolume;
+            volumeSlider.value = previousVolume * 100;
+        } else {
+            previousVolume = videoElement.volume;
+            videoElement.volume = 0;
+            volumeSlider.value = 0;
+        }
+        updateVolumeIcon(videoElement.volume);
+    });
+
+    // Handle keyboard accessibility
+    volumeSlider.addEventListener('keydown', (e) => {
+        const step = 5;
+        let newValue = parseInt(volumeSlider.value);
+
+        if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+            newValue = Math.min(100, newValue + step);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+            newValue = Math.max(0, newValue - step);
+        }
+
+        volumeSlider.value = newValue;
+        videoElement.volume = newValue / 100;
+        updateVolumeIcon(videoElement.volume);
+    });
+}
+
 function initializePlayer() {
     if (isInitialized) return;
     
@@ -198,6 +297,7 @@ function initializePlayer() {
     
     // Set up event listeners
     const playButton = controlsWrapper.querySelector('.play-pause');
+    const volumeContainer = controlsWrapper.querySelector('.volume-container');
     const timeDisplay = controlsWrapper.querySelector('.time-display');
 
     const speedButton = controlsWrapper.querySelector('.speed-button');
@@ -207,7 +307,9 @@ function initializePlayer() {
     if (speedButton && speedMenu) {
         setupSpeedControl(videoElement, speedButton, speedMenu);
     }
-    
+    if (volumeContainer) {
+        setupVolumeControl(videoElement, volumeContainer);
+    }
     if (fullscreenButton) {
         setupFullscreenControl(videoElement, fullscreenButton);
     }
