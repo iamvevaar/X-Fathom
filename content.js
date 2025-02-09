@@ -521,6 +521,179 @@ function setupSkipControls(videoElement, controlsWrapper) {
   });
 }
 
+// Update the setupKeyboardControls function
+function setupKeyboardControls(videoElement, controlsWrapper) {
+  // Cache all the control elements we need
+  const playButton = controlsWrapper.querySelector('.play-pause');
+  const volumeContainer = controlsWrapper.querySelector('.volume-container');
+  const volumeButton = volumeContainer?.querySelector('.volume-button');
+  const volumeProgress = volumeContainer?.querySelector('.volume-slider-progress');
+  const volumeSlider = volumeContainer?.querySelector('.volume-slider');
+  const volumeSliderContainer = volumeContainer?.querySelector('.volume-slider-container');
+  const fullscreenButton = controlsWrapper.querySelector('.fullscreen-button');
+  
+  
+  let previousVolume = 1;
+  let volumeVisibilityTimeout;
+
+    // Function to update volume with bounds checking and UI update
+    function adjustVolume(delta) {
+        // Calculate new volume, keeping it between 0 and 1
+        const newVolume = Math.max(0, Math.min(1, videoElement.volume + delta));
+        
+        // If we're increasing volume from 0, unmute first
+        if (delta > 0 && (videoElement.volume === 0 || videoElement.muted)) {
+            videoElement.muted = false;
+        }
+        
+        // Update video volume
+        videoElement.volume = newVolume;
+        
+        // If new volume is greater than 0, store it as previous volume
+        if (newVolume > 0) {
+            previousVolume = newVolume;
+        }
+        
+        // Update the UI elements
+        updateVolumeUI(newVolume);
+        
+        // Show a temporary visual indicator of volume change
+        volumeButton?.classList.add('button-pressed');
+        setTimeout(() => volumeButton?.classList.remove('button-pressed'), 200);
+    }
+
+    function updateVolumeUI(volume, updateSlider = true) {
+        // Update the progress fill
+        if (volumeProgress) {
+            volumeProgress.style.width = `${volume * 100}%`;
+        }
+
+        // Update the slider value if needed
+        if (updateSlider && volumeSlider) {
+            volumeSlider.value = volume * 100;
+        }
+
+        // Update the icon
+        if (volumeButton) {
+            volumeButton.innerHTML = getVolumeIcon(volume);
+        }
+    }
+
+// Function to show volume slider temporarily
+function showVolumeSlider() {
+    // Instead of directly setting style.width, use a class
+    if (volumeSliderContainer) {
+        volumeSliderContainer.classList.add('volume-slider-visible');
+        
+        // Clear any existing timeout
+        if (volumeVisibilityTimeout) {
+            clearTimeout(volumeVisibilityTimeout);
+        }
+
+        // Set timeout to remove the class
+        volumeVisibilityTimeout = setTimeout(() => {
+            if (volumeSliderContainer) {
+                volumeSliderContainer.classList.remove('volume-slider-visible');
+            }
+        }, 2000);
+    }
+}
+    function adjustVolume(delta) {
+        // Show the volume slider when adjusting volume
+        showVolumeSlider();
+
+        // Calculate new volume, keeping it between 0 and 1
+        const newVolume = Math.max(0, Math.min(1, videoElement.volume + delta));
+        
+        if (delta > 0 && (videoElement.volume === 0 || videoElement.muted)) {
+            videoElement.muted = false;
+        }
+        
+        videoElement.volume = newVolume;
+        
+        if (newVolume > 0) {
+            previousVolume = newVolume;
+        }
+        
+        updateVolumeUI(newVolume);
+        
+        volumeButton?.classList.add('button-pressed');
+        setTimeout(() => volumeButton?.classList.remove('button-pressed'), 200);
+    }
+
+    
+
+     // Add cleanup function
+     function cleanup() {
+        if (volumeVisibilityTimeout) {
+            clearTimeout(volumeVisibilityTimeout);
+        }
+    }
+
+     // Clean up when video is unloaded
+     videoElement.addEventListener('unload', cleanup);
+
+    function toggleMute() {
+        if (videoElement.volume === 0 || videoElement.muted) {
+            videoElement.muted = false;
+            videoElement.volume = previousVolume;
+            updateVolumeUI(previousVolume);
+        } else {
+            previousVolume = videoElement.volume;
+            videoElement.volume = 0;
+            videoElement.muted = true;
+            updateVolumeUI(0);
+        }
+    }
+
+    // Add the keyboard event listener
+    document.addEventListener('keydown', (e) => {
+        // Don't handle shortcuts if user is typing in an input
+        const isInputFocused = document.activeElement.tagName === 'INPUT' || 
+                             document.activeElement.tagName === 'TEXTAREA';
+        
+        if (!isInputFocused) {
+            switch (e.key.toLowerCase()) {
+                case ' ':  // Space bar
+                    e.preventDefault();
+                    if (videoElement.paused) {
+                        videoElement.play();
+                    } else {
+                        videoElement.pause();
+                    }
+                    playButton?.classList.add('button-pressed');
+                    setTimeout(() => playButton?.classList.remove('button-pressed'), 200);
+                    break;
+                    
+                case 'm':
+                    toggleMute();
+                    volumeButton?.classList.add('button-pressed');
+                    setTimeout(() => volumeButton?.classList.remove('button-pressed'), 200);
+                    break;
+                    
+                case 'f':
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(err => console.log(err));
+                    } else {
+                        videoElement.requestFullscreen().catch(err => console.log(err));
+                    }
+                    fullscreenButton?.classList.add('button-pressed');
+                    setTimeout(() => fullscreenButton?.classList.remove('button-pressed'), 200);
+                    break;
+
+                case 'arrowup':
+                    e.preventDefault(); // Prevent page scroll
+                    adjustVolume(0.05); // Increase volume by 5%
+                    break;
+
+                case 'arrowdown':
+                    e.preventDefault(); // Prevent page scroll
+                    adjustVolume(-0.05); // Decrease volume by 5%
+                    break;
+            }
+        }
+    });
+}
 function initializePlayer() {
   if (isInitialized) return;
 
@@ -542,6 +715,8 @@ function initializePlayer() {
   const controlsWrapper = createControlsStructure();
 
   setupSkipControls(videoElement, controlsWrapper);
+  setupKeyboardControls(videoElement, controlsWrapper);  // Add this line
+
 
   // Move existing progress bar
   const progressContainer = controlsWrapper.querySelector(

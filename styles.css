@@ -21,6 +21,7 @@ button.flex.items-end.cursor-pointer.css-19urstm,
 .progress-bar-container {
   width: 100%;
   padding: 0 16px;
+  margin-bottom: 6px;
 }
 
 /* Ensure the progress bar is visible */
@@ -290,13 +291,18 @@ ui-playhead {
     transform: scale(1);
 }
 
-/* Additional hover effect for the thumb */
-.volume-container:hover .volume-slider::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
+
+/* Make sure the thumb visibility follows the container */
+.volume-container:hover .volume-slider::-webkit-slider-thumb,
+.volume-slider-visible .volume-slider::-webkit-slider-thumb {
+    opacity: 1;
+    transform: scale(1);
 }
 
-.volume-container:hover .volume-slider::-moz-range-thumb:hover {
-    transform: scale(1.2);
+.volume-container:hover .volume-slider::-moz-range-thumb,
+.volume-slider-visible .volume-slider::-moz-range-thumb {
+    opacity: 1;
+    transform: scale(1);
 }
 
 /* Keep the rest of the volume slider styles the same */
@@ -316,7 +322,9 @@ ui-playhead {
     padding: 0 10px;
 }
 
-.volume-container:hover .volume-slider-container {
+/* Show slider on both hover and when class is present */
+.volume-container:hover .volume-slider-container,
+.volume-slider-container.volume-slider-visible {
     width: 100px;
 }
 
@@ -360,3 +368,4 @@ ui-playhead {
     margin: 0;
     z-index: 2;
 }
+
