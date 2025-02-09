@@ -646,6 +646,35 @@ function showVolumeSlider() {
         }
     }
 
+    // Add function to handle percentage-based seeking
+    function seekToPercentage(percentage) {
+        // Ensure the video duration is available
+        if (!videoElement.duration || isNaN(videoElement.duration)) return;
+        
+        // Calculate the target time (percentage of total duration)
+        const targetTime = (percentage / 100) * videoElement.duration;
+        
+        // Ensure the time is within valid bounds
+        const newTime = Math.max(0, Math.min(videoElement.duration, targetTime));
+        
+        // Update video time
+        if (!isNaN(newTime)) {
+            videoElement.currentTime = newTime;
+            
+            // Optional: Show a visual indicator of the jump
+            // We can use the existing progress bar for this
+            const progressBar = controlsWrapper.querySelector('ui-playhead');
+            if (progressBar) {
+                // Add a quick highlight effect
+                progressBar.style.transition = 'opacity 0.2s';
+                progressBar.style.opacity = '0.7';
+                setTimeout(() => {
+                    progressBar.style.opacity = '1';
+                }, 200);
+            }
+        }
+    }
+
     // Add the keyboard event listener
     document.addEventListener('keydown', (e) => {
         // Don't handle shortcuts if user is typing in an input
@@ -690,6 +719,22 @@ function showVolumeSlider() {
                     e.preventDefault(); // Prevent page scroll
                     adjustVolume(-0.05); // Decrease volume by 5%
                     break;
+
+                    // Add handling for number keys (0-9)
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        // Convert key to percentage (0 = 0%, 1 = 10%, ..., 9 = 90%)
+                        const percentage = (e.key === '0' ? 0 : parseInt(e.key) * 10);
+                        seekToPercentage(percentage);
+                        break;
             }
         }
     });
