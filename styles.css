@@ -40,10 +40,20 @@ ui-playhead {
   visibility: visible !important;
 }
 
+
+/* Add to styles.css */
+.skip-button {
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+}
+
+.skip-button:hover {
+    opacity: 1;
+}
 .controls-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
 }
 
 .controls-right {
@@ -57,7 +67,7 @@ ui-playhead {
   border: none;
   color: white;
   cursor: pointer;
-  padding: 8px;
+  padding: 4px 4px;
   border-radius: 50%;
   transition: background-color 0.2s;
   display: flex;
