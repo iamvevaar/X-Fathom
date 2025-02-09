@@ -334,6 +334,66 @@ function setupSpeedControl(videoElement, speedContainer) {
   });
 }
 
+function setupControlsVisibility(videoElement) {
+  const videoPlayer = document.querySelector('video-player');
+  const controlsWrapper = document.querySelector('.video-controls-wrapper');
+  
+  if (!videoPlayer || !controlsWrapper) return;
+
+  let mouseTimeoutId = null;
+  let isMouseMoving = false;
+
+  // Function to hide controls
+  function hideControls() {
+      // Don't hide if video is paused
+      if (!videoElement.paused) {
+          controlsWrapper.style.opacity = '0';
+          controlsWrapper.style.transform = 'translateY(10px)';
+      }
+  }
+
+  // Function to show controls
+  function showControls() {
+      controlsWrapper.style.opacity = '1';
+      controlsWrapper.style.transform = 'translateY(0)';
+      
+      // Reset any existing timeout
+      if (mouseTimeoutId) {
+          clearTimeout(mouseTimeoutId);
+      }
+
+      // Set new timeout to hide controls after 3 seconds of inactivity
+      if (!videoElement.paused) {
+          mouseTimeoutId = setTimeout(hideControls, 3000);
+      }
+  }
+
+  // Handle mouse movement
+  videoPlayer.addEventListener('mousemove', () => {
+      isMouseMoving = true;
+      showControls();
+      
+      // Reset mouse moving flag after a short delay
+      setTimeout(() => {
+          isMouseMoving = false;
+      }, 150);
+  });
+
+  // Keep controls visible when video is paused
+  videoElement.addEventListener('pause', showControls);
+
+  // Handle mouse leaving the video player
+  videoPlayer.addEventListener('mouseleave', () => {
+      if (!videoElement.paused) {
+          hideControls();
+      }
+  });
+
+  // Show controls initially
+  showControls();
+}
+
+
 function setupVideoLoader(videoElement) {
   const loaderContainer = document.querySelector('.video-loader-container');
   if (!loaderContainer) return;
@@ -806,6 +866,7 @@ function initializePlayer() {
 
   setupSkipControls(videoElement, controlsWrapper);
   setupKeyboardControls(videoElement, controlsWrapper);  // Add this line
+  setupControlsVisibility(videoElement);
 
 
   // Move existing progress bar

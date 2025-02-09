@@ -6,15 +6,36 @@ button.flex.items-end.cursor-pointer.css-19urstm,
   display: none !important;
 }
 
-/* Main container styles */
+/* First, let's add the base styles for control visibility */
 .video-controls-wrapper {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  padding: 8px 0;
-  z-index: 1000;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* Add transition for smooth fade effect */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    /* Make sure it's above the video but below any critical overlays */
+    z-index: 1000;
+    /* Add gradient background for better visibility */
+    background: linear-gradient(to top, 
+        rgba(0, 0, 0, 0.9) 0%, 
+        rgba(0, 0, 0, 0.7) 40%, 
+        transparent 100%);
+    padding: 8px 0;
+}
+
+/* Show controls when hovering over the video player */
+video-player:hover .video-controls-wrapper {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Ensure controls stay visible while hovering over them */
+.video-controls-wrapper:hover {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Progress bar container */
@@ -22,6 +43,10 @@ button.flex.items-end.cursor-pointer.css-19urstm,
   width: 100%;
   padding: 0 16px;
   margin-bottom: 6px;
+}
+
+video-player:hover .progress-bar-container {
+    opacity: 1;
 }
 
 /* Ensure the progress bar is visible */
