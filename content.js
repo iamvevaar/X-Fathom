@@ -134,27 +134,54 @@ function createControlsStructure() {
 
   // Create speed control
   const speedContainer = createControlElement("div", "speed-container");
+
+  // Create speed button (will now be on the right)
   const speedButton = createControlElement(
     "button",
     "control-button speed-button"
   );
   speedButton.innerHTML = `
-        <span class="speed-label">1x</span>
-    `;
+     <span class="speed-label">1x</span>
+ `;
 
-  // Create speed menu
-  const speedMenu = createControlElement("div", "speed-menu");
-  const speedOptions = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
-  speedOptions.forEach((speed) => {
-    const option = createControlElement("button", "speed-option");
-    option.textContent = `${speed}x`;
-    option.dataset.speed = speed;
-    if (speed === 1) option.classList.add("active");
-    speedMenu.appendChild(option);
-  });
+  // Create speed slider container (will now be on the left)
+  const speedSliderContainer = createControlElement(
+    "div",
+    "speed-slider-container"
+  );
 
-  speedContainer.appendChild(speedButton);
-  speedContainer.appendChild(speedMenu);
+  // Create wrapper for slider and progress
+  const speedSliderWrapper = createControlElement(
+    "div",
+    "speed-slider-wrapper"
+  );
+
+  // Create background track
+  const speedBackground = createControlElement(
+    "div",
+    "speed-slider-background"
+  );
+
+  // Create progress fill
+  const speedProgress = createControlElement("div", "speed-slider-progress");
+  speedProgress.style.width = "50%"; // Default 1x speed is in the middle
+
+  // Create speed slider input
+  const speedSlider = createControlElement("input", "speed-slider");
+  speedSlider.type = "range";
+  speedSlider.min = "0";
+  speedSlider.max = "100";
+  speedSlider.value = "50"; // Default value for 1x speed
+
+  // Assemble speed control elements in the new order
+  speedSliderWrapper.appendChild(speedBackground);
+  speedSliderWrapper.appendChild(speedProgress);
+  speedSliderWrapper.appendChild(speedSlider);
+  speedSliderContainer.appendChild(speedSliderWrapper);
+
+  // Add elements in reverse order (slider first, then button)
+  speedContainer.appendChild(speedButton); // This will appear on the right
+  speedContainer.appendChild(speedSliderContainer); // This will appear on the left
 
   // Create fullscreen button
   const fullscreenButton = createControlElement(
@@ -188,40 +215,107 @@ function formatTime(seconds) {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-function setupSpeedControl(videoElement, speedButton, speedMenu) {
-  let menuVisible = false;
+function setupSpeedControl(videoElement, speedContainer) {
+  // Get all the necessary elements
+  const speedButton = speedContainer.querySelector(".speed-button");
+  const speedSlider = speedContainer.querySelector(".speed-slider");
+  const speedProgress = speedContainer.querySelector(".speed-slider-progress");
+  const speedLabel = speedButton.querySelector(".speed-label");
 
-  // Toggle speed menu
-  speedButton.addEventListener("click", (e) => {
-    e.stopPropagation();
-    menuVisible = !menuVisible;
-    speedMenu.classList.toggle("visible", menuVisible);
-  });
+  // Convert slider value (0-100) to speed (0.25-2)
+  function sliderToSpeed(value) {
+    // Using a non-linear scale for better control around 1x speed
+    const normalizedValue = value / 100; // Convert to 0-1 range
+    if (normalizedValue <= 0.5) {
+      // First half maps to 0.25-1 (slower speeds)
+      return 0.25 + normalizedValue * 1.5; // 1.5 = 0.75 * 2
+    } else {
+      // Second half maps to 1-2 (faster speeds)
+      return 1 + (normalizedValue - 0.5) * 2;
+    }
+  }
 
-  // Handle speed selection
-  speedMenu.addEventListener("click", (e) => {
-    const speedOption = e.target.closest(".speed-option");
-    if (!speedOption) return;
+  // Convert speed to slider value (inverse of sliderToSpeed)
+  function speedToSlider(speed) {
+    if (speed <= 1) {
+      // Map 0.25-1 to 0-50
+      return ((speed - 0.25) / 0.75) * 50;
+    } else {
+      // Map 1-2 to 50-100
+      return 50 + ((speed - 1) / 1) * 50;
+    }
+  }
 
-    const speed = parseFloat(speedOption.dataset.speed);
+  // Update all UI elements to reflect current speed
+  function updateSpeedUI(speed, updateSlider = true) {
+    console.log("Updating UI with speed:", speed);
+
+    // Update the label with formatted speed
+    speedLabel.textContent = `${speed.toFixed(2)}x`;
+
+    // Calculate slider value
+    const sliderValue = speedToSlider(speed);
+
+    // Update the progress fill width
+    speedProgress.style.width = `${sliderValue}%`;
+
+    // Update slider position if needed
+    if (updateSlider) {
+      speedSlider.value = sliderValue;
+    }
+  }
+
+  // Handle slider input (during drag)
+  speedSlider.addEventListener("input", (e) => {
+    const sliderValue = parseFloat(e.target.value);
+    const speed = sliderToSpeed(sliderValue);
+
+    // Update video playback rate
     videoElement.playbackRate = speed;
 
-    // Update UI
-    speedButton.querySelector(".speed-label").textContent = `${speed}x`;
-    speedMenu.querySelectorAll(".speed-option").forEach((opt) => {
-      opt.classList.toggle("active", opt === speedOption);
-    });
+    // Update UI without updating slider (as it's being dragged)
+    updateSpeedUI(speed, false);
 
-    menuVisible = false;
-    speedMenu.classList.remove("visible");
+    console.log("Slider value:", sliderValue, "Speed:", speed);
   });
 
-  // Close menu when clicking outside
-  document.addEventListener("click", () => {
-    if (menuVisible) {
-      menuVisible = false;
-      speedMenu.classList.remove("visible");
-    }
+  // Mouse wheel support for fine-tuning
+  speedContainer.addEventListener("wheel", (e) => {
+    e.preventDefault();
+
+    // Get current speed and calculate new speed
+    const currentSpeed = videoElement.playbackRate;
+    const direction = e.deltaY < 0 ? 1 : -1;
+    const step = 0.1;
+    const newSpeed = Math.max(
+      0.25,
+      Math.min(2, currentSpeed + direction * step)
+    );
+
+    // Update video speed
+    videoElement.playbackRate = newSpeed;
+
+    // Update all UI elements
+    updateSpeedUI(newSpeed);
+
+    console.log("Wheel adjustment - New speed:", newSpeed);
+  });
+
+  // Double-click to reset to normal speed
+  speedButton.addEventListener("dblclick", () => {
+    videoElement.playbackRate = 1;
+    updateSpeedUI(1);
+    console.log("Reset to normal speed");
+  });
+
+  // Initial setup - set speed to 1x
+  videoElement.playbackRate = 1;
+  updateSpeedUI(1);
+
+  // Add event listener for playback rate changes
+  videoElement.addEventListener("ratechange", () => {
+    updateSpeedUI(videoElement.playbackRate);
+    console.log("Playback rate changed:", videoElement.playbackRate);
   });
 }
 
@@ -361,64 +455,70 @@ function setupVolumeControl(videoElement, volumeContainer) {
 
 // Add this new function to handle seeking functionality
 function setupSkipControls(videoElement, controlsWrapper) {
-    const backwardButton = controlsWrapper.querySelector('.skip-button:first-child');
-    const forwardButton = controlsWrapper.querySelector('.skip-button:nth-child(3)');
-    
-    function seekVideo(offset) {
-        const newTime = Math.max(0, Math.min(videoElement.duration, videoElement.currentTime + offset));
-        if (!isNaN(newTime)) {
-            videoElement.currentTime = newTime;
-        }
-    }
+  const backwardButton = controlsWrapper.querySelector(
+    ".skip-button:first-child"
+  );
+  const forwardButton = controlsWrapper.querySelector(
+    ".skip-button:nth-child(3)"
+  );
 
-    // Helper function to handle button animation
-    function animateButton(button, direction) {
-        // Remove any existing animation class
-        button.classList.remove('animate-backward', 'animate-forward');
-        
-        // Force a reflow to ensure animation plays again even if clicked rapidly
-        void button.offsetWidth;
-        
-        // Add the appropriate animation class
-        button.classList.add(`animate-${direction}`);
-        
-        // Clean up animation class after it completes
-        setTimeout(() => {
-            button.classList.remove(`animate-${direction}`);
-        }, 500); // Match this with animation duration
+  function seekVideo(offset) {
+    const newTime = Math.max(
+      0,
+      Math.min(videoElement.duration, videoElement.currentTime + offset)
+    );
+    if (!isNaN(newTime)) {
+      videoElement.currentTime = newTime;
     }
+  }
 
-    // Add backward seeking with animation
-    backwardButton.addEventListener('click', () => {
+  // Helper function to handle button animation
+  function animateButton(button, direction) {
+    // Remove any existing animation class
+    button.classList.remove("animate-backward", "animate-forward");
+
+    // Force a reflow to ensure animation plays again even if clicked rapidly
+    void button.offsetWidth;
+
+    // Add the appropriate animation class
+    button.classList.add(`animate-${direction}`);
+
+    // Clean up animation class after it completes
+    setTimeout(() => {
+      button.classList.remove(`animate-${direction}`);
+    }, 500); // Match this with animation duration
+  }
+
+  // Add backward seeking with animation
+  backwardButton.addEventListener("click", () => {
+    seekVideo(-10);
+    animateButton(backwardButton, "backward");
+  });
+
+  // Add forward seeking with animation
+  forwardButton.addEventListener("click", () => {
+    seekVideo(10);
+    animateButton(forwardButton, "forward");
+  });
+
+  // Add keyboard shortcuts with visual feedback
+  document.addEventListener("keydown", (e) => {
+    const isInputFocused =
+      document.activeElement.tagName === "INPUT" ||
+      document.activeElement.tagName === "TEXTAREA";
+
+    if (!isInputFocused) {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
         seekVideo(-10);
-        animateButton(backwardButton, 'backward');        
-      
-    });
-
-    // Add forward seeking with animation
-    forwardButton.addEventListener('click', () => {
+        animateButton(backwardButton, "backward");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
         seekVideo(10);
-        animateButton(forwardButton, 'forward');        
-       
-    });
-
-    // Add keyboard shortcuts with visual feedback
-    document.addEventListener('keydown', (e) => {
-        const isInputFocused = document.activeElement.tagName === 'INPUT' || 
-                             document.activeElement.tagName === 'TEXTAREA';
-        
-        if (!isInputFocused) {
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                seekVideo(-10);
-                animateButton(backwardButton, 'backward');
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                seekVideo(10);
-                animateButton(forwardButton, 'forward');
-            }
-        }
-    });
+        animateButton(forwardButton, "forward");
+      }
+    }
+  });
 }
 
 function initializePlayer() {
@@ -460,6 +560,12 @@ function initializePlayer() {
   const speedButton = controlsWrapper.querySelector(".speed-button");
   const speedMenu = controlsWrapper.querySelector(".speed-menu");
   const fullscreenButton = controlsWrapper.querySelector(".fullscreen-button");
+
+  const speedContainer = controlsWrapper.querySelector(".speed-container");
+
+  if (speedContainer) {
+    setupSpeedControl(videoElement, speedContainer);
+  }
 
   if (speedButton && speedMenu) {
     setupSpeedControl(videoElement, speedButton, speedMenu);

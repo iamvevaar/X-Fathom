@@ -142,44 +142,114 @@ ui-playhead {
 
 
 /* Speed menu styling */
-.speed-menu {
-    position: absolute;
-    bottom: 100%;
-    right: 0;
-    background: rgba(28, 28, 28, 0.9);
-    border-radius: 4px;
-    padding: 8px 0;
-    display: none;
-    min-width: 120px;
-}
-
-.speed-menu.visible {
-    display: block;
-}
-
-.speed-option {
-    padding: 8px 16px;
-    color: white;
-    cursor: pointer;
-    background: none;
-    border: none;
-    width: 100%;
-    text-align: left;
-    font-size: 14px;
-}
-
-.speed-option:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.speed-option.active {
-    color: #3ea6ff;
-}
-
-/* Position the speed button container relatively for the menu */
+/* Speed control container styling */
 .speed-container {
     position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse; /* This makes children flow from right to left */
 }
+
+.speed-slider-container {
+    width: 0;
+    height: 100%;
+    overflow: hidden;
+    transition: width 0.2s ease;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.speed-container:hover .speed-slider-container {
+    width: 100px;
+}
+
+.speed-slider-wrapper {
+    position: relative;
+    width: 80px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.speed-slider-background {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.speed-slider-progress {
+    position: absolute;
+    left: 0;
+    height: 4px;
+    background: white;
+    border-radius: 2px;
+    pointer-events: none;
+    transition: width 0.1s ease;
+}
+
+.speed-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    margin: 0;
+    z-index: 2;
+}
+
+/* Speed slider thumb styles - hidden by default */
+.speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+    transform: scale(0);
+}
+
+.speed-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    opacity: 0;
+    transform: scale(0);
+}
+
+/* Show thumb on container hover */
+.speed-container:hover .speed-slider::-webkit-slider-thumb {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.speed-container:hover .speed-slider::-moz-range-thumb {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Hover effect for the thumb */
+.speed-container:hover .speed-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.speed-container:hover .speed-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+}
+
 
 
 /* Volume slider thumb styles - hide by default */
