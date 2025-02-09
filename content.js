@@ -263,7 +263,6 @@ function setupSpeedControl(videoElement, speedContainer) {
 
   // Update all UI elements to reflect current speed
   function updateSpeedUI(speed, updateSlider = true) {
-    console.log("Updating UI with speed:", speed);
 
     // Update the label with formatted speed
     speedLabel.textContent = `${speed.toFixed(2)}x`;
@@ -291,7 +290,6 @@ function setupSpeedControl(videoElement, speedContainer) {
     // Update UI without updating slider (as it's being dragged)
     updateSpeedUI(speed, false);
 
-    console.log("Slider value:", sliderValue, "Speed:", speed);
   });
 
   // Mouse wheel support for fine-tuning
@@ -313,14 +311,12 @@ function setupSpeedControl(videoElement, speedContainer) {
     // Update all UI elements
     updateSpeedUI(newSpeed);
 
-    console.log("Wheel adjustment - New speed:", newSpeed);
   });
 
   // Double-click to reset to normal speed
   speedButton.addEventListener("dblclick", () => {
     videoElement.playbackRate = 1;
     updateSpeedUI(1);
-    console.log("Reset to normal speed");
   });
 
   // Initial setup - set speed to 1x
@@ -330,7 +326,6 @@ function setupSpeedControl(videoElement, speedContainer) {
   // Add event listener for playback rate changes
   videoElement.addEventListener("ratechange", () => {
     updateSpeedUI(videoElement.playbackRate);
-    console.log("Playback rate changed:", videoElement.playbackRate);
   });
 }
 
@@ -847,7 +842,6 @@ function showVolumeSlider() {
 function initializePlayer() {
   if (isInitialized) return;
 
-  console.log("Initializing Fathom player controls...");
 
   // Find required elements
   const videoElement = document.querySelector("video");
@@ -855,11 +849,9 @@ function initializePlayer() {
   const existingPlayhead = document.querySelector("ui-playhead");
 
   if (!videoElement || !playerSection || !existingPlayhead) {
-    console.log("Required elements not found, retrying...");
     return false;
   }
 
-  console.log("Found all required elements, creating controls...");
 
   // Create and insert controls
   const controlsWrapper = createControlsStructure();
@@ -906,7 +898,6 @@ function initializePlayer() {
   }
 
   if (!playButton || !timeDisplay) {
-    console.error("Failed to find control elements");
     return false;
   }
 
@@ -940,16 +931,13 @@ function initializePlayer() {
   videoElement.addEventListener("timeupdate", updateTimeDisplay);
 
   isInitialized = true;
-  console.log("Player controls initialized successfully");
   return true;
 }
 
 // Initialize with retry mechanism
 function initializeWithRetry(maxAttempts = 5, currentAttempt = 0) {
-  console.log(`Initialization attempt ${currentAttempt + 1} of ${maxAttempts}`);
 
   if (currentAttempt >= maxAttempts) {
-    console.log("Max initialization attempts reached");
     return;
   }
 
