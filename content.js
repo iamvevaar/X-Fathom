@@ -361,54 +361,64 @@ function setupVolumeControl(videoElement, volumeContainer) {
 
 // Add this new function to handle seeking functionality
 function setupSkipControls(videoElement, controlsWrapper) {
-  const backwardButton = controlsWrapper.querySelector(
-    ".skip-button:first-child"
-  );
-  const forwardButton = controlsWrapper.querySelector(
-    ".skip-button:nth-child(3)"
-  );
-
-  // Helper function to seek video with bounds checking
-  function seekVideo(offset) {
-    // Calculate new time with bounds checking
-    const newTime = Math.max(
-      0,
-      Math.min(videoElement.duration, videoElement.currentTime + offset)
-    );
-
-    // Only seek if it's a valid time
-    if (!isNaN(newTime)) {
-      videoElement.currentTime = newTime;
+    const backwardButton = controlsWrapper.querySelector('.skip-button:first-child');
+    const forwardButton = controlsWrapper.querySelector('.skip-button:nth-child(3)');
+    
+    function seekVideo(offset) {
+        const newTime = Math.max(0, Math.min(videoElement.duration, videoElement.currentTime + offset));
+        if (!isNaN(newTime)) {
+            videoElement.currentTime = newTime;
+        }
     }
-  }
 
-  // Add backward seeking
-  backwardButton.addEventListener("click", () => {
-    seekVideo(-10); // Seek backward 10 seconds
-  });
+    // Helper function to handle button animation
+    function animateButton(button, direction) {
+        // Remove any existing animation class
+        button.classList.remove('animate-backward', 'animate-forward');
+        
+        // Force a reflow to ensure animation plays again even if clicked rapidly
+        void button.offsetWidth;
+        
+        // Add the appropriate animation class
+        button.classList.add(`animate-${direction}`);
+        
+        // Clean up animation class after it completes
+        setTimeout(() => {
+            button.classList.remove(`animate-${direction}`);
+        }, 500); // Match this with animation duration
+    }
 
-  // Add forward seeking
-  forwardButton.addEventListener("click", () => {
-    seekVideo(10); // Seek forward 10 seconds
-  });
-
-  // Add keyboard shortcuts for seeking
-  document.addEventListener("keydown", (e) => {
-    // Only handle if video player is focused or no text input is focused
-    const isInputFocused =
-      document.activeElement.tagName === "INPUT" ||
-      document.activeElement.tagName === "TEXTAREA";
-
-    if (!isInputFocused) {
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
+    // Add backward seeking with animation
+    backwardButton.addEventListener('click', () => {
         seekVideo(-10);
-      } else if (e.key === "ArrowRight") {
-        e.preventDefault();
+        animateButton(backwardButton, 'backward');        
+      
+    });
+
+    // Add forward seeking with animation
+    forwardButton.addEventListener('click', () => {
         seekVideo(10);
-      }
-    }
-  });
+        animateButton(forwardButton, 'forward');        
+       
+    });
+
+    // Add keyboard shortcuts with visual feedback
+    document.addEventListener('keydown', (e) => {
+        const isInputFocused = document.activeElement.tagName === 'INPUT' || 
+                             document.activeElement.tagName === 'TEXTAREA';
+        
+        if (!isInputFocused) {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                seekVideo(-10);
+                animateButton(backwardButton, 'backward');
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                seekVideo(10);
+                animateButton(forwardButton, 'forward');
+            }
+        }
+    });
 }
 
 function initializePlayer() {
