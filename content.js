@@ -839,6 +839,120 @@ function showVolumeSlider() {
         }
     });
 }
+
+// Add this new function to handle video progress persistence
+function setupVideoProgress(videoElement) {
+  // Function to get a consistent video identifier
+  function getVideoId() {
+      // First try to get video ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const pathname = window.location.pathname;
+      
+      // Extract video ID from pathname - assuming it's the last part of the path
+      const pathMatch = pathname.match(/\/([^\/]+)$/);
+      const videoId = pathMatch ? pathMatch[1] : null;
+      
+      if (!videoId) {
+          console.log('Could not determine video ID');
+          return null;
+      }
+      
+      return videoId;
+  }
+
+  // Function to get timestamp from URL if present
+  function getUrlTimestamp() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const timestamp = urlParams.get('timestamp');
+      return timestamp ? parseFloat(timestamp) : null;
+  }
+
+  const videoId = getVideoId();
+  if (!videoId) return;
+
+  const videoKey = `video-progress-${videoId}`;
+
+  function loadSavedProgress() {
+      // First check for timestamp in URL
+      const urlTimestamp = getUrlTimestamp();
+      if (urlTimestamp) {
+          if (urlTimestamp > 0 && urlTimestamp < videoElement.duration) {
+              videoElement.currentTime = urlTimestamp;
+          }
+          return; // Don't use localStorage if URL timestamp exists
+      }
+
+      // If no URL timestamp, try localStorage
+      const savedTime = localStorage.getItem(videoKey);
+      if (savedTime) {
+          const time = parseFloat(savedTime);
+          if (time > 0 && time < videoElement.duration) {
+              videoElement.currentTime = time;
+              // Optionally update URL with timestamp
+              updateUrlWithTimestamp(time);
+          }
+      }
+  }
+
+  function saveProgress() {
+      if (videoElement.currentTime > 1) {
+          if (videoElement.duration - videoElement.currentTime > 1) {
+              localStorage.setItem(videoKey, videoElement.currentTime.toString());
+              // Update URL with current timestamp
+              updateUrlWithTimestamp(videoElement.currentTime);
+          } else {
+              localStorage.removeItem(videoKey);
+              // Remove timestamp from URL
+              updateUrlWithTimestamp(null);
+          }
+      }
+  }
+
+  // Function to update URL with timestamp
+  function updateUrlWithTimestamp(timestamp) {
+      if (!window.history || !window.history.replaceState) return;
+
+      const url = new URL(window.location.href);
+      if (timestamp) {
+          url.searchParams.set('timestamp', Math.floor(timestamp));
+      } else {
+          url.searchParams.delete('timestamp');
+      }
+      window.history.replaceState({}, '', url.toString());
+  }
+
+  // Load saved progress once video metadata is loaded
+  videoElement.addEventListener('loadedmetadata', loadSavedProgress);
+  
+  // Save progress periodically during playback
+  let saveInterval;
+  videoElement.addEventListener('play', () => {
+      saveInterval = setInterval(saveProgress, 5000);
+  });
+  
+  videoElement.addEventListener('pause', () => {
+      saveProgress();
+      if (saveInterval) {
+          clearInterval(saveInterval);
+      }
+  });
+  
+  videoElement.addEventListener('ended', () => {
+      localStorage.removeItem(videoKey);
+      updateUrlWithTimestamp(null);
+      if (saveInterval) {
+          clearInterval(saveInterval);
+      }
+  });
+  
+  window.addEventListener('beforeunload', () => {
+      saveProgress();
+      if (saveInterval) {
+          clearInterval(saveInterval);
+      }
+  });
+}
+
 function initializePlayer() {
   if (isInitialized) return;
 
@@ -859,6 +973,7 @@ function initializePlayer() {
   setupSkipControls(videoElement, controlsWrapper);
   setupKeyboardControls(videoElement, controlsWrapper);  // Add this line
   setupControlsVisibility(videoElement);
+  setupVideoProgress(videoElement); //this is for video progress persistence after loading the page
 
 
   // Move existing progress bar
