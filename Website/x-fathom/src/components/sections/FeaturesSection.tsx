@@ -1,97 +1,66 @@
 import { Box, Lock, Search, Settings, Sparkles } from "lucide-react";
 import { GlowingEffect } from "../ui/glowing-effect";
+import { SparklesCore } from "../ui/sparkles";
+import { Meteors } from "../ui/meteors";
+import { BackgroundGradient } from "../ui/background-gradient";
+import CardCarousel from "../ui/CardCarousel";
+import { InfiniteMovingCards } from "../ui/infinite-moving-cards";
 
 export default function FeaturesSection() {
   return (
     <div>
-      <h2 className="text-2xl relative z-20 md:text-4xl lg:text-7xl font-bold text-center text-black dark:text-white font-sans tracking-tight">
-        <div className="relative mx-auto inline-block w-max [filter:drop-shadow(0px_1px_3px_rgba(27,_37,_80,_0.14))]">
-          <div className="relative bg-clip-text text-transparent bg-no-repeat bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500 py-4">
-            <span className="">Features</span>
-          </div>
+      <div className="h-[25rem] w-full flex flex-col items-center justify-center overflow-hidden rounded-md">
+        <h2 className="md:text-2xl text-2xl lg:text-9xl font-bold text-center text-white relative z-20">
+          Features
+        </h2>
+        <div className="w-[40rem] h-40 relative">
+          {/* Gradients */}
+          <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-3/4 blur-sm" />
+          <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-px w-3/4" />
+          <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-[5px] w-1/4 blur-sm" />
+          <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px w-1/4" />
+
+          {/* Core component */}
+          <SparklesCore
+            background="transparent"
+            minSize={0.4}
+            maxSize={1}
+            particleDensity={1200}
+            className="w-full h-full"
+            particleColor="#FFFFFF"
+          />
+
+          {/* Radial Gradient to prevent sharp edges */}
+          <div className="absolute inset-0 w-full h-full bg-[#0a0a0a] [mask-image:radial-gradient(350px_200px_at_top,transparent_20%,white)]"></div>
         </div>
-      </h2>
-      <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
-        <GridItem
-          area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
-          icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
-          title="Do things the right way"
-          description="Running out of copy so I'll write anything."
-        />
+      </div>
 
-        <GridItem
-          area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
-          icon={
-            <Settings className="h-4 w-4 text-black dark:text-neutral-400" />
-          }
-          title="The best AI code editor ever."
-          description="Yes, it's true. I'm not even kidding. Ask my mom if you don't believe me."
+      {/* From here we have one the card code with the glowing effect */}
+      <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white dark:bg-[#0a0a0a] dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
+        <InfiniteMovingCards
+          items={items}
+          direction="left"
+          speed="fast"
+          pauseOnHover={true}
         />
-
-        <GridItem
-          area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
-          icon={<Lock className="h-4 w-4 text-black dark:text-neutral-400" />}
-          title="You should buy Aceternity UI Pro"
-          description="It's the best money you'll ever spend"
-        />
-
-        <GridItem
-          area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
-          icon={
-            <Sparkles className="h-4 w-4 text-black dark:text-neutral-400" />
-          }
-          title="This card is also built by Cursor"
-          description="I'm not even kidding. Ask my mom if you don't believe me."
-        />
-
-        <GridItem
-          area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
-          icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-          title="Coming soon on Aceternity UI"
-          description="I'm writing the code as I record this, no shit."
-        />
-      </ul>
+      </div>
     </div>
   );
 }
 
-interface GridItemProps {
-  area: string;
-  icon: React.ReactNode;
-  title: string;
-  description: React.ReactNode;
-}
-
-const GridItem = ({ area, icon, title, description }: GridItemProps) => {
-  return (
-    <li className={`min-h-[14rem] list-none ${area}`}>
-      <div className="relative h-full rounded-2.5xl border  p-2  md:rounded-3xl md:p-3">
-        <GlowingEffect
-          spread={40}
-          glow={true}
-          disabled={false}
-          proximity={64}
-          inactiveZone={0.01}
-        />
-        <div className="relative flex h-full flex-col justify-between gap-6 overflow-hidden rounded-xl border-0.75 p-6  dark:shadow-[0px_0px_27px_0px_#2D2D2D] md:p-6">
-          <div className="relative flex flex-1 flex-col justify-between gap-3">
-            <div className="w-fit rounded-lg border border-gray-600 p-2 ">
-              {icon}
-            </div>
-            <div className="space-y-3">
-              <h3 className="pt-0.5 text-xl/[1.375rem] font-semibold font-sans -tracking-4 md:text-2xl/[1.875rem] text-balance text-black dark:text-white">
-                {title}
-              </h3>
-              <h2
-                className="[&_b]:md:font-semibold [&_strong]:md:font-semibold font-sans text-sm/[1.125rem] 
-                md:text-base/[1.375rem]  text-black dark:text-neutral-400"
-              >
-                {description}
-              </h2>
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-  );
-};
+const items = [
+  {
+    title: "Meteors because they're cool",
+    description:
+      "I don't know what to write so I'll just paste something cool here. One more sentence because lorem ipsum is just unacceptable.",
+  },
+  {
+    title: "Another Feature",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  },
+  {
+    title: "Feature 3",
+    description:
+      "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+];
