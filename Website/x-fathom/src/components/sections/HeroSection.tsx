@@ -22,7 +22,7 @@ export default function HeroSection() {
           secondImageClassname="object-cover object-left-top"
           className="h-[250px] w-[600px] md:h-[500px] md:w-[900px]"
           slideMode="hover"
-          autoplay={true}
+          autoplay={false}
         />
       </div>
     </div>
