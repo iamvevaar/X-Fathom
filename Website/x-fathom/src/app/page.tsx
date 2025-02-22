@@ -1,5 +1,6 @@
 import FeaturesSection from "@/components/sections/FeaturesSection";
 import HeroSection from "@/components/sections/HeroSection";
+import JoinList from "@/components/sections/JoinList";
 import Testimonial from "@/components/sections/Testimonial";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <Testimonial/>
+      <JoinList/>
     </div>
   );
 }
