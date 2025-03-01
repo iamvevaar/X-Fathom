@@ -1,10 +1,8 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import { Meteors } from "./meteors";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
-// Dynamically import Lottie with no SSR
-
 import { Outfit } from "next/font/google";
 
 const outfit = Outfit({
@@ -13,8 +11,7 @@ const outfit = Outfit({
 });
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
-
-import volumeAnimation from '../../../public/animations/volume.json';
+import volumeAnimation from "../../../public/animations/volume.json";
 
 interface CardProps {
   title: string;
@@ -22,28 +19,19 @@ interface CardProps {
   children?: React.ReactNode;
 }
 
-function Card({ title, description , children }: CardProps) {
+function Card({ title, description, children }: CardProps) {
   return (
-    <div className={`${outfit.className} w-[350px] md:w-[450px] mx-6 p-4  relative h-[300px] flex-shrink-0`}>
+    <div className={`${outfit.className} w-[350px] md:w-[450px] mx-6 p-4 relative h-[300px] flex-shrink-0`}>
       {/* Background gradient */}
       <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-blue-500 to-teal-500 transform scale-[0.80] rounded-full blur-3xl" />
-      
       <div className="relative h-full shadow-xl bg-gray-900 border border-gray-800 px-8 py-6 rounded-2xl flex flex-col justify-start items-start">
-        
         <span className="font-bold text-4xl text-white mb-4 relative z-50">
           {title}
         </span>
-        
-        {children && (
-          <div >
-            {children}
-          </div>
-        )}
-        
-         <p className="font-normal text-lg leading-[1.6] text-gray-400 mb-4 relative z-50">
+        {children && <div>{children}</div>}
+        <p className="font-normal text-lg leading-[1.6] text-gray-400 mb-4 relative z-50">
           {description}
-        </p> 
-        
+        </p>
         <Meteors number={20} />
       </div>
     </div>
@@ -54,8 +42,6 @@ function Card({ title, description , children }: CardProps) {
 const animationsMap = {
   volume: volumeAnimation,
   // Add other animations here
-  // animation2: animation2,
-  // etc...
 };
 
 export const InfiniteMovingCards = ({
@@ -80,53 +66,37 @@ export const InfiniteMovingCards = ({
   const [start, setStart] = useState(false);
 
   useEffect(() => {
-    addAnimation();
-  }, []);
+    const addAnimation = () => {
+      if (containerRef.current && scrollerRef.current) {
+        const scrollerContent = Array.from(scrollerRef.current.children);
+        scrollerContent.forEach((item) => {
+          const duplicatedItem = item.cloneNode(true);
+          if (scrollerRef.current) {
+            scrollerRef.current.appendChild(duplicatedItem);
+          }
+        });
 
-  function addAnimation() {
-    if (containerRef.current && scrollerRef.current) {
-      const scrollerContent = Array.from(scrollerRef.current.children);
-
-      scrollerContent.forEach((item) => {
-        const duplicatedItem = item.cloneNode(true);
-        if (scrollerRef.current) {
-          scrollerRef.current.appendChild(duplicatedItem);
+        // Set animation direction
+        if (containerRef.current) {
+          containerRef.current.style.setProperty(
+            "--animation-direction",
+            direction === "left" ? "forwards" : "reverse"
+          );
         }
-      });
 
-      getDirection();
-      getSpeed();
-      setStart(true);
-    }
-  }
+        // Set animation speed
+        if (containerRef.current) {
+          const duration =
+            speed === "fast" ? "20s" : speed === "normal" ? "40s" : "80s";
+          containerRef.current.style.setProperty("--animation-duration", duration);
+        }
 
-  const getDirection = () => {
-    if (containerRef.current) {
-      if (direction === "left") {
-        containerRef.current.style.setProperty(
-          "--animation-direction",
-          "forwards"
-        );
-      } else {
-        containerRef.current.style.setProperty(
-          "--animation-direction",
-          "reverse"
-        );
+        setStart(true);
       }
-    }
-  };
+    };
 
-  const getSpeed = () => {
-    if (containerRef.current) {
-      if (speed === "fast") {
-        containerRef.current.style.setProperty("--animation-duration", "20s");
-      } else if (speed === "normal") {
-        containerRef.current.style.setProperty("--animation-duration", "40s");
-      } else {
-        containerRef.current.style.setProperty("--animation-duration", "80s");
-      }
-    }
-  };
+    addAnimation();
+  }, [direction, speed]);
 
   return (
     <div
@@ -145,24 +115,17 @@ export const InfiniteMovingCards = ({
         )}
       >
         {items.map((item, idx) => (
-          <li
-            key={idx}
-            className="relative flex-shrink-0"
-          >
-            <Card 
-              title={item.title} 
-              description={item.description}
-              children={
-                item.animation && (
-                  <Lottie
-                    animationData={animationsMap[item.animation]}
-                    loop={true}
-                    autoplay={true}
-                    style={{ width: '100%', height: '100%' }}
-                  />
-                )
-              }
-            />
+          <li key={idx} className="relative flex-shrink-0">
+            <Card title={item.title} description={item.description}>
+              {item.animation && (
+                <Lottie
+                  animationData={animationsMap[item.animation]}
+                  loop={true}
+                  autoplay={true}
+                  style={{ width: "100%", height: "100%" }}
+                />
+              )}
+            </Card>
           </li>
         ))}
       </ul>
