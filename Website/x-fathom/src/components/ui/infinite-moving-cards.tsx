@@ -2,13 +2,20 @@
 import React, { useEffect, useState } from "react";
 import { Meteors } from "./meteors";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+// Dynamically import Lottie with no SSR
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
+
+import volumeAnimation from '../../../public/animations/volume.json';
 
 interface CardProps {
   title: string;
   description: string;
+  children?: React.ReactNode;
 }
 
-function Card({ title, description }: CardProps) {
+function Card({ title, description , children }: CardProps) {
   return (
     <div className="w-[350px] md:w-[450px] mx-6 p-4  relative h-[300px] flex-shrink-0">
       {/* Background gradient */}
@@ -16,18 +23,33 @@ function Card({ title, description }: CardProps) {
       
       <div className="relative h-full shadow-xl bg-gray-900 border border-gray-800 px-8 py-6 rounded-2xl flex flex-col justify-start items-start">
         
-        <h1 className="font-bold text-xl text-white mb-4 relative z-50">
+        <span className="font-bold text-4xl text-white mb-4 relative z-50">
           {title}
-        </h1>
-        <p className="font-normal text-sm leading-[1.6] text-gray-400 mb-4 relative z-50">
+        </span>
+        
+        {children && (
+          <div >
+            {children}
+          </div>
+        )}
+        
+         <p className="font-normal text-sm leading-[1.6] text-gray-400 mb-4 relative z-50">
           {description}
-        </p>
+        </p> 
         
         <Meteors number={20} />
       </div>
     </div>
   );
 }
+
+// Define the animations map
+const animationsMap = {
+  volume: volumeAnimation,
+  // Add other animations here
+  // animation2: animation2,
+  // etc...
+};
 
 export const InfiniteMovingCards = ({
   items,
@@ -39,6 +61,7 @@ export const InfiniteMovingCards = ({
   items: {
     title: string;
     description: string;
+    animation?: keyof typeof animationsMap;
   }[];
   direction?: "left" | "right";
   speed?: "fast" | "normal" | "slow";
@@ -119,7 +142,20 @@ export const InfiniteMovingCards = ({
             key={idx}
             className="relative flex-shrink-0"
           >
-            <Card title={item.title} description={item.description} />
+            <Card 
+              title={item.title} 
+              description={item.description}
+              children={
+                item.animation && (
+                  <Lottie
+                    animationData={animationsMap[item.animation]}
+                    loop={true}
+                    autoplay={true}
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                )
+              }
+            />
           </li>
         ))}
       </ul>

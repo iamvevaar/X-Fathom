@@ -4,8 +4,8 @@ import { InfiniteMovingCards } from "../ui/infinite-moving-cards";
 export default function FeaturesSection() {
   return (
     <div>
-      <div className="h-[15rem] sm:h-[20rem] md:h-[25rem] w-full flex flex-col items-center justify-center overflow-hidden rounded-md">
-        <h2 className="text-3xl sm:text-5xl md:text-7xl lg:text-9xl font-bold text-center text-white relative z-20">
+      <div className="container h-[15rem] sm:h-[20rem] md:h-[25rem] w-full flex flex-col items-center justify-center overflow-hidden rounded-md">
+        <h2 className="text-2xl sm:text-3xl md:text-2xl lg:text-9xl font-bold text-center text-white relative z-20">
           Features
         </h2>
         <div className="sm:w-[30rem] md:w-[40rem]  sm:h-32 md:h-40 relative">
@@ -42,17 +42,40 @@ export default function FeaturesSection() {
 
 const items = [
   {
-    title: "Meteors because they're cool",
+    title: "Start From Where You Left",
     description:
-      "I don't know what to write so I'll just paste something cool here. One more sentence because lorem ipsum is just unacceptable.",
+    "This will help you to start from where you close the browser.",
+    animation: "volume",
   },
   {
-    title: "Another Feature",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    title: "Scrolling Playback Speed",
+    description: "A smooth experience with the playback scrolling speed",
   },
   {
-    title: "Feature 3",
-    description:
-      "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    title:"Dedicated Volume Control",
+    description:"You can control the volume of the video with the help of the volume keys.",
+    children: (
+      <img
+        src="/animations/volume.json"
+        alt="feature1"
+        className="w-20 h-20"
+      />
+    ),
   },
+  {
+    title: "Keyboard Shortcuts",
+    description:
+      "All youtube shortcuts are available for you to use including the numpad keys feature.",
+  },
+  {
+    title: "Backward and Forward",
+    description:"You can go backward and forward in the video with the help of the arrow keys.",
+    children: (
+        <img
+          src="/icons/ten.svg"
+          alt="feature1"
+          className="w-20 h-20"
+        />
+      )
+    },
 ];
