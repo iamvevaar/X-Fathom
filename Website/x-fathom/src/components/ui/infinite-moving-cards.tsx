@@ -5,6 +5,13 @@ import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 // Dynamically import Lottie with no SSR
 
+import { Outfit } from "next/font/google";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "700"], // adjust weights as needed
+});
+
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 import volumeAnimation from '../../../public/animations/volume.json';
@@ -17,7 +24,7 @@ interface CardProps {
 
 function Card({ title, description , children }: CardProps) {
   return (
-    <div className="w-[350px] md:w-[450px] mx-6 p-4  relative h-[300px] flex-shrink-0">
+    <div className={`${outfit.className} w-[350px] md:w-[450px] mx-6 p-4  relative h-[300px] flex-shrink-0`}>
       {/* Background gradient */}
       <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-blue-500 to-teal-500 transform scale-[0.80] rounded-full blur-3xl" />
       
@@ -33,7 +40,7 @@ function Card({ title, description , children }: CardProps) {
           </div>
         )}
         
-         <p className="font-normal text-sm leading-[1.6] text-gray-400 mb-4 relative z-50">
+         <p className="font-normal text-lg leading-[1.6] text-gray-400 mb-4 relative z-50">
           {description}
         </p> 
         

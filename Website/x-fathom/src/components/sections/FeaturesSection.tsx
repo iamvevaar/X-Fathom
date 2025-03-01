@@ -45,7 +45,6 @@ const items = [
     title: "Start From Where You Left",
     description:
     "This will help you to start from where you close the browser.",
-    animation: "volume",
   },
   {
     title: "Scrolling Playback Speed",

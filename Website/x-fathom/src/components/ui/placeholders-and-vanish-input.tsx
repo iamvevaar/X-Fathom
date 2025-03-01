@@ -3,6 +3,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { cn } from "@/lib/utils";
+import { Outfit } from "next/font/google";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["400", "700"], // adjust weights as needed
+});
+
 
 export function PlaceholdersAndVanishInput({
   placeholders,
@@ -226,12 +233,13 @@ export function PlaceholdersAndVanishInput({
         value={value}
         type="text"
         className={cn(
+          outfit.className, // Apply the Outfit font to the entire input
           "w-full relative text-sm sm:text-base z-50 border-none dark:text-white bg-transparent text-black h-full rounded-full focus:outline-none focus:ring-0 pl-4 sm:pl-10 pr-4",
           animating && "text-transparent dark:text-transparent"
         )}
       />
 
-      <div className="absolute inset-0 flex items-center rounded-full pointer-events-none">
+      <div className={`${outfit.className} absolute inset-0 flex items-center rounded-full pointer-events-none`}>
         <AnimatePresence mode="wait">
           {!value && (
             <motion.p
