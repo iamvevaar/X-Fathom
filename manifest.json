@@ -1,8 +1,15 @@
 {
     "manifest_version": 3,
-    "name": "Fathom Progress Bar Cleaner",
+    "name": "X-Fathom",
     "version": "1.0",
-    "description": "Removes unwanted elements from the Fathom video recorder player, leaving only the progress bar.",
+    "description": "Enhanced Immersive Experience for Fathom",
+    "action": {
+      "default_icon": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+      }
+    },
     "content_scripts": [
     {
       "matches": ["*://*.fathom.video/*"],
