@@ -1,8 +1,14 @@
+"use client";
 import React from "react";
 import { Compare } from "../ui/compare";
 import { Cover } from "../ui/cover";
 
 export default function HeroSection() {
+  
+  const handleDownload = () => {
+    window.open("https://chromewebstore.google.com/detail/ephnakeihcedogcajbfodoenjhangmhg?utm_source=item-share-cb", "_blank");
+  }
+  
   return (
     <div className="container flex flex-col md:flex md:flex-row md:items-center md:justify-center min-h-screen py-2">
       <div className="flex flex-col items-center justify-center">
@@ -10,7 +16,7 @@ export default function HeroSection() {
           Enhanced Experienced <br /> with <Cover>X-Fathom</Cover>
         </h1>
 
-        <button className="font-outfit inline-flex h-14 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-extrabold text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
+        <button onClick={handleDownload} className="font-outfit inline-flex h-14 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-extrabold text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
           Download Now
         </button>
       </div>
@@ -22,7 +28,7 @@ export default function HeroSection() {
           secondImageClassname="object-cover object-left-top"
           className="h-[250px] w-[100%] md:h-[500px] md:w-[900px]"
           slideMode="hover"
-          autoplay={false}
+          autoplay={true}
         />
       </div>
     </div>
