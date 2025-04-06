@@ -1065,11 +1065,26 @@ function setupTheaterMode(videoElement, theaterButton) {
         videoPlayer.style.maxWidth = '100%';
         videoPlayer.style.width = '100%';
         
-        // Change note section class from lg:flex to md:flex if it exists
+        // Change note section class from lg:flex to md:flex and remove flex-1 if it exists
         if (notesSection) {
-          if (notesSection.className.includes('lg:flex')) {
-            notesSection.className = notesSection.className.replace('lg:flex', 'md:flex');
+          let newClassName = notesSection.className;
+          
+          // Replace lg:flex with md:flex
+          if (newClassName.includes('lg:flex')) {
+            newClassName = newClassName.replace('lg:flex', 'md:flex');
           }
+          
+          // Remove flex-1 class
+          if (newClassName.includes('flex-1')) {
+            // Use regex to match flex-1 as a whole word/class to avoid partial matches
+            newClassName = newClassName.replace(/\bflex-1\b/g, '');
+            
+            // Clean up any double spaces that might be left after removal
+            newClassName = newClassName.replace(/\s+/g, ' ').trim();
+          }
+          
+          // Apply the new class string
+          notesSection.className = newClassName;
         }
         
         // Adjust transcript/AI notes margins if they exist
@@ -1124,10 +1139,33 @@ function setupTheaterMode(videoElement, theaterButton) {
         if (notesSection && originalStyles.notesClass) {
           notesSection.className = originalStyles.notesClass;
         } else if (notesSection) {
-          // If we don't have the original class stored, just replace md:flex with lg:flex
-          if (notesSection.className.includes('md:flex')) {
-            notesSection.className = notesSection.className.replace('md:flex', 'lg:flex');
+          let newClassName = notesSection.className;
+          
+          // If we don't have the original class stored, make best effort to restore original state
+          
+          // Replace md:flex with lg:flex
+          if (newClassName.includes('md:flex')) {
+            newClassName = newClassName.replace('md:flex', 'lg:flex');
           }
+          
+          // Restore flex-1 class if it's missing
+          if (!newClassName.includes('flex-1')) {
+            // Insert flex-1 after "hydrated" if present, or before "lg:flex" if present
+            if (newClassName.includes('hydrated')) {
+              newClassName = newClassName.replace('hydrated', 'hydrated flex-1');
+            } else if (newClassName.includes('lg:flex')) {
+              newClassName = newClassName.replace('lg:flex', 'flex-1 lg:flex');
+            } else {
+              // Just append it to be safe
+              newClassName += ' flex-1';
+            }
+          }
+          
+          // Clean up any double spaces
+          newClassName = newClassName.replace(/\s+/g, ' ').trim();
+          
+          // Apply the restored class string
+          notesSection.className = newClassName;
         }
         
         // Remove active class from button
@@ -1186,6 +1224,7 @@ function setupTheaterMode(videoElement, theaterButton) {
     console.warn('Failed to load theater mode preference', e);
   }
 }
+
 
 function initializePlayer() {
   if (isInitialized) return;
