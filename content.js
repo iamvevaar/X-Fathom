@@ -198,6 +198,19 @@ function createControlsStructure() {
   speedContainer.appendChild(speedButton); // This will appear on the right
   speedContainer.appendChild(speedSliderContainer); // This will appear on the left
 
+
+   // Create theater mode button (add before fullscreen)
+   const theaterButton = createControlElement(
+    "button",
+    "control-button theater-button"
+  );
+  theaterButton.setAttribute("title", "Theater mode");
+  theaterButton.innerHTML = `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"/>
+    </svg>
+  `;
+
   // Create fullscreen button
   const fullscreenButton = createControlElement(
     "button",
@@ -211,6 +224,7 @@ function createControlsStructure() {
 
   // Add new controls to right side
   rightControls.appendChild(speedContainer);
+  rightControls.appendChild(theaterButton);
   rightControls.appendChild(fullscreenButton);
 
   // Add all elements to the custom controls
@@ -419,41 +433,7 @@ function setupVideoLoader(videoElement) {
   });
 }
 
-function setupFullscreenControl(videoElement, fullscreenButton) {
-  fullscreenButton.addEventListener("click", () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch((err) => console.log(err));
-      fullscreenButton.innerHTML = `
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-                </svg>
-            `;
-    } else {
-      videoElement.requestFullscreen().catch((err) => console.log(err));
-      fullscreenButton.innerHTML = `
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
-                </svg>
-            `;
-    }
-  });
 
-  // Update button icon when fullscreen changes
-  document.addEventListener("fullscreenchange", () => {
-    const isFullscreen = document.fullscreenElement !== null;
-    fullscreenButton.innerHTML = isFullscreen
-      ? `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
-            </svg>
-        `
-      : `
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-            </svg>
-        `;
-  });
-}
 
 // Add this function to get the correct volume icons
 function getVolumeIcon(volume) {
@@ -953,6 +933,260 @@ function setupVideoProgress(videoElement) {
   });
 }
 
+function setupFullscreenControl(videoElement, fullscreenButton) {
+  fullscreenButton.addEventListener("click", () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch((err) => console.log(err));
+      fullscreenButton.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </svg>
+            `;
+    } else {
+      videoElement.requestFullscreen().catch((err) => console.log(err));
+      fullscreenButton.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+                </svg>
+            `;
+    }
+  }); 
+
+  // Update button icon when fullscreen changes
+  document.addEventListener("fullscreenchange", () => {
+    const isFullscreen = document.fullscreenElement !== null;
+    fullscreenButton.innerHTML = isFullscreen
+      ? `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
+            </svg>
+        `
+      : `
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            </svg>
+        `;
+  });
+}
+function setupTheaterMode(videoElement, theaterButton) {
+  // Find the video player and its parent containers
+  const videoPlayer = document.querySelector('video-player');
+  
+  // Track theater mode state
+  let isTheaterMode = false;
+  
+  // Store original styles and classes to restore them later
+  let originalStyles = {
+    videoPlayer: null,
+    mainContainer: null,
+    sectionContainer: null,
+    detailSection: null,
+    sectionMaxWidth: null,
+    notesClass: null
+  };
+  
+  function toggleTheaterMode() {
+    isTheaterMode = !isTheaterMode;
+    
+    if (videoPlayer) {
+      // Find all relevant containers in Fathom's structure
+      const mainContainer = document.querySelector('.flex.relative.flex-col.items-start.mx-auto.w-full.h-full');
+      const sectionContainer = document.querySelector('section.flex.flex-col.flex-grow.h-full.mx-auto.w-full');
+      const detailSection = document.querySelector('page-call-detail-ai-notes, page-call-detail-transcript, ask-fathom-chat');
+      const notesSection = document.querySelector('page-call-detail-notes');
+      
+      if (isTheaterMode) {
+        // Save original styles before modifying
+        if (!originalStyles.videoPlayer) {
+          originalStyles.videoPlayer = {
+            width: videoPlayer.style.width,
+            height: videoPlayer.style.height,
+            maxWidth: videoPlayer.style.maxWidth
+          };
+          
+          if (mainContainer) {
+            originalStyles.mainContainer = {
+              maxWidth: mainContainer.style.maxWidth,
+              width: mainContainer.style.width
+            };
+          }
+          
+          if (sectionContainer) {
+            // Store the original max-width style
+            originalStyles.sectionMaxWidth = sectionContainer.style.maxWidth;
+            
+            originalStyles.sectionContainer = {
+              maxWidth: sectionContainer.style.maxWidth,
+              width: sectionContainer.style.width
+            };
+          }
+          
+          if (detailSection) {
+            originalStyles.detailSection = {
+              marginLeft: detailSection.style.marginLeft
+            };
+          }
+          
+          if (notesSection) {
+            // Store the original class string
+            originalStyles.notesClass = notesSection.className;
+          }
+        }
+        
+        // Apply theater mode styles
+        if (mainContainer) {
+          mainContainer.style.maxWidth = '100vw';
+        }
+        
+        if (sectionContainer) {
+          // Remove the max-width style attribute completely
+          sectionContainer.style.maxWidth = '';
+          sectionContainer.style.width = '100%';
+          
+          // Also remove inline style attribute if it exists with maxWidth
+          if (sectionContainer.hasAttribute('style') && 
+              sectionContainer.getAttribute('style').includes('max-width')) {
+            
+            // Get current style attribute
+            let styleAttr = sectionContainer.getAttribute('style');
+            
+            // Remove max-width property from the style string
+            styleAttr = styleAttr.replace(/max-width:\s*[^;]+;?/g, '');
+            
+            // If style is now empty, remove the attribute, otherwise update it
+            if (styleAttr.trim() === '') {
+              sectionContainer.removeAttribute('style');
+            } else {
+              sectionContainer.setAttribute('style', styleAttr);
+            }
+          }
+        }
+        
+        videoPlayer.style.maxWidth = '100%';
+        videoPlayer.style.width = '100%';
+        
+        // Change note section class from lg:flex to md:flex if it exists
+        if (notesSection) {
+          if (notesSection.className.includes('lg:flex')) {
+            notesSection.className = notesSection.className.replace('lg:flex', 'md:flex');
+          }
+        }
+        
+        // Adjust transcript/AI notes margins if they exist
+        if (detailSection) {
+          detailSection.style.marginLeft = '0';
+        }
+        
+        // Add active class to button for styling
+        theaterButton.classList.add('active');
+        
+        // Update button icon
+        theaterButton.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"/>
+            <path d="M4 19h16v-2H4v2zm0-17v2h16V2H4z"/>
+          </svg>
+        `;
+        
+        console.log('Theater mode enabled');
+      } else {
+        // Restore original styles
+        if (originalStyles.mainContainer && mainContainer) {
+          mainContainer.style.maxWidth = originalStyles.mainContainer.maxWidth;
+          mainContainer.style.width = originalStyles.mainContainer.width;
+        }
+        
+        if (originalStyles.sectionContainer && sectionContainer) {
+          // Restore the original max-width style
+          if (originalStyles.sectionMaxWidth) {
+            sectionContainer.style.maxWidth = originalStyles.sectionMaxWidth;
+          } else if (originalStyles.sectionContainer.maxWidth) {
+            sectionContainer.style.maxWidth = originalStyles.sectionContainer.maxWidth;
+          } else {
+            // If no stored max-width, set to default 530px
+            sectionContainer.style.maxWidth = '530px';
+          }
+          
+          sectionContainer.style.width = originalStyles.sectionContainer.width;
+        }
+        
+        if (originalStyles.videoPlayer) {
+          videoPlayer.style.width = originalStyles.videoPlayer.width;
+          videoPlayer.style.maxWidth = originalStyles.videoPlayer.maxWidth;
+          videoPlayer.style.height = originalStyles.videoPlayer.height;
+        }
+        
+        if (originalStyles.detailSection && detailSection) {
+          detailSection.style.marginLeft = originalStyles.detailSection.marginLeft;
+        }
+        
+        // Restore original class on notes section if it exists
+        if (notesSection && originalStyles.notesClass) {
+          notesSection.className = originalStyles.notesClass;
+        } else if (notesSection) {
+          // If we don't have the original class stored, just replace md:flex with lg:flex
+          if (notesSection.className.includes('md:flex')) {
+            notesSection.className = notesSection.className.replace('md:flex', 'lg:flex');
+          }
+        }
+        
+        // Remove active class from button
+        theaterButton.classList.remove('active');
+        
+        // Update button icon
+        theaterButton.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 7H5c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 8H5V9h14v6z"/>
+          </svg>
+        `;
+        
+        console.log('Theater mode disabled');
+      }
+      
+      // Force layout recalculation
+      videoPlayer.getBoundingClientRect();
+      
+      // Save preference in localStorage
+      try {
+        localStorage.setItem('fathom-theater-mode', isTheaterMode ? 'enabled' : 'disabled');
+      } catch (e) {
+        console.warn('Failed to save theater mode preference', e);
+      }
+    } else {
+      console.warn('Could not find video player element');
+    }
+  }
+  
+  // Add click event to the theater mode button
+  theaterButton.addEventListener('click', toggleTheaterMode);
+  
+  // Add keyboard shortcut: 't' for theater mode
+  document.addEventListener('keydown', (e) => {
+    const isInputFocused = document.activeElement.tagName === 'INPUT' || 
+                         document.activeElement.tagName === 'TEXTAREA';
+    
+    if (!isInputFocused && e.key.toLowerCase() === 't') {
+      e.preventDefault();
+      toggleTheaterMode();
+      
+      // Add visual feedback
+      theaterButton.classList.add('button-pressed');
+      setTimeout(() => theaterButton.classList.remove('button-pressed'), 200);
+    }
+  });
+  
+  // Load saved preference from localStorage
+  try {
+    const savedPreference = localStorage.getItem('fathom-theater-mode');
+    if (savedPreference === 'enabled' && !isTheaterMode) {
+      // Delay applying theater mode to ensure DOM is fully loaded
+      setTimeout(toggleTheaterMode, 1000);
+    }
+  } catch (e) {
+    console.warn('Failed to load theater mode preference', e);
+  }
+}
+
 function initializePlayer() {
   if (isInitialized) return;
 
@@ -998,6 +1232,9 @@ function initializePlayer() {
 
   const speedContainer = controlsWrapper.querySelector(".speed-container");
 
+  const theaterButton = controlsWrapper.querySelector(".theater-button");
+
+
   if (speedContainer) {
     setupSpeedControl(videoElement, speedContainer);
   }
@@ -1010,6 +1247,9 @@ function initializePlayer() {
   }
   if (fullscreenButton) {
     setupFullscreenControl(videoElement, fullscreenButton);
+  }
+  if (theaterButton) {
+    setupTheaterMode(videoElement, theaterButton);
   }
 
   if (!playButton || !timeDisplay) {

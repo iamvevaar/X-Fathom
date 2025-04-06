@@ -460,3 +460,21 @@ ui-playhead {
         transform: rotate(360deg);
     }
 }
+
+
+/* Add to your styles.css */
+.theater-mode video-player {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 85vh !important;
+  }
+  
+  .theater-mode .video-container {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  
+  /* Style for the active theater mode button */
+  .theater-button.active {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
